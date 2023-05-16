@@ -18,7 +18,9 @@ public class ConverterTests
     {
         DateTimeOffset now = DateTimeOffset.Now;
         string json = JsonSerializer.Serialize(new DataWrapper<DateTimeOffset>(now));
-        string expected = @$"{{""Data"":""{now.ToString(@"yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz")}""}}";
+        string expected = $$"""
+            {"Data":"{{now.ToString(@"yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz")}}"}
+            """;
         _testOutputHelper.WriteLine(json);
         Assert.Equal(expected, json);
 
@@ -33,7 +35,9 @@ public class ConverterTests
         options.Converters.Add(new DateTimeOffsetTimestampConverter());
         DateTimeOffset time = new(2023, 5, 16, 16, 30, 45, 678, TimeSpan.Zero);
         string json = JsonSerializer.Serialize(new DataWrapper<DateTimeOffset>(time), options);
-        string expected = @$"{{""Data"":{time.ToUnixTimeMilliseconds().ToString()}}}";
+        string expected = $$"""
+            {"Data":{{time.ToUnixTimeMilliseconds().ToString()}}}
+            """;
         _testOutputHelper.WriteLine(json);
         Assert.Equal(expected, json);
 
@@ -46,7 +50,9 @@ public class ConverterTests
     {
         Person person = new(new DateTimeOffset(2023, 5, 16, 16, 30, 45, 678, TimeSpan.Zero));
         string json = JsonSerializer.Serialize(person);
-        string expected = $@"{{""BirthDate"":{person.BirthDate.ToUnixTimeMilliseconds()}}}";
+        string expected = $$"""
+            {"BirthDate":{{person.BirthDate.ToUnixTimeMilliseconds()}}}
+            """;
         _testOutputHelper.WriteLine(json);
         Assert.Equal(expected, json);
 
