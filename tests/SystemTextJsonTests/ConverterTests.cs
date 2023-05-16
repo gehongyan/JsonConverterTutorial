@@ -4,26 +4,26 @@ using Xunit.Abstractions;
 
 namespace SystemTextJsonTests;
 
-public class DateTimeConverterTests
+public class ConverterTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public DateTimeConverterTests(ITestOutputHelper testOutputHelper)
+    public ConverterTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }
 
     [Fact]
-    public void DefaultBehaviorsTest()
+    public void DateTimeOffsetDefaultBehaviorsTest()
     {
         DateTimeOffset now = DateTimeOffset.Now;
-        string json = JsonSerializer.Serialize(now);
-        string expected = now.ToString(@"'""'yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz'""'");
+        string json = JsonSerializer.Serialize(new DataWrapper<DateTimeOffset>(now));
+        string expected = @$"{{""Data"":""{now.ToString(@"yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz")}""}}";
         _testOutputHelper.WriteLine(json);
         Assert.Equal(expected, json);
 
-        DateTimeOffset result = JsonSerializer.Deserialize<DateTimeOffset>(json);
-        Assert.Equal(now, result);
+        DataWrapper<DateTimeOffset>? result = JsonSerializer.Deserialize<DataWrapper<DateTimeOffset>>(json);
+        Assert.Equal(now, result?.Data);
     }
 
     [Fact]
@@ -31,14 +31,14 @@ public class DateTimeConverterTests
     {
         JsonSerializerOptions options = new();
         options.Converters.Add(new DateTimeOffsetTimestampConverter());
-        DateTimeOffset now = new(2023, 5, 16, 16, 30, 45, 678, TimeSpan.Zero);
-        string json = JsonSerializer.Serialize(now, options);
-        string expected = now.ToUnixTimeMilliseconds().ToString();
+        DateTimeOffset time = new(2023, 5, 16, 16, 30, 45, 678, TimeSpan.Zero);
+        string json = JsonSerializer.Serialize(new DataWrapper<DateTimeOffset>(time), options);
+        string expected = @$"{{""Data"":{time.ToUnixTimeMilliseconds().ToString()}}}";
         _testOutputHelper.WriteLine(json);
         Assert.Equal(expected, json);
 
-        DateTimeOffset result = JsonSerializer.Deserialize<DateTimeOffset>(json, options);
-        Assert.Equal(now, result);
+        DataWrapper<DateTimeOffset>? result = JsonSerializer.Deserialize<DataWrapper<DateTimeOffset>>(json, options);
+        Assert.Equal(time, result?.Data);
     }
 
     [Fact]
